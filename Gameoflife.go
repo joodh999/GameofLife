@@ -11,70 +11,56 @@ var gen = 0
 
 func main() {
 
-	state := flag.Int("S", 0, "set state (0-3)")
-	gens := flag.Int("G", 10, "set generation")
+	s := flag.Int("S", 0, "set state (0-3)")
+	g := flag.Int("G", 50, "set generation")
 	flag.Parse()
 
-	println(*state)
-	println(*gens)
+	populate(*s)
+	display()
 
-	grid[9][9] = 1
-
-	grid[8][9] = 1
-	grid[10][9] = 1
-
-	grid[10][10] = 1
-	grid[10][8] = 1
-
-	// display()
-	nextgen()
-	// display()
+	for i := 0; i < *g; i++ {
+		gen++
+		gameOfLife()
+		display()
+	}
 
 }
 
-func nextgen() {
-	for i := 0; i < 20; i++ {
-		for j := 0; j < 20; j++ {
-			if grid[i][j] == 1 {
+func gameOfLife() {
 
-				// Each cell with one or no neighbors dies, as if by solitude.
-				if getneighbors(i, j) == 0 || getneighbors(i, j) == 1 {
-					grid[i][j] = 0
-				}
+	cgrid := grid
 
-				// Each cell with four or more neighbors dies, as if by overpopulation.
-				if getneighbors(i, j) <= 4 {
-					grid[i][j] = 0
-				}
+	for x := 0; x < len(cgrid); x++ {
+		for y := 0; y < len(cgrid[x]); y++ {
 
-				// Each cell with two or three neighbors survives
-				if getneighbors(i, j) == 2 || getneighbors(i, j) == 3 {
-					grid[i][j] = 1
-				}
+			// GET live neighbors
+			neibors := inBound(cgrid, x, y+1) + inBound(cgrid, x, y-1) + inBound(cgrid, x-1, y) + inBound(cgrid, x+1, y) + inBound(cgrid, x-1, y-1) + inBound(cgrid, x-1, y+1) + inBound(cgrid, x+1, y-1) + inBound(cgrid, x+1, y+1)
 
-			} else if grid[i][j] == 0 {
-				// Each cell with three neighbors becomes populated.
-				if getneighbors(i, j) == 3 {
-					grid[i][j] = 1
-				}
+			// Any live cell with fewer than two live neighbors dies
+			// Any live cell with more than three live neighbors dies
+			if cgrid[x][y] == 1 && neibors < 2 || neibors > 3 {
+				grid[x][y] = 0
+			}
+
+			// Any live cell with two or three live neighbors lives on to the next generation
+
+			// Any dead cell with exactly three live neighbors becomes a live cell
+			if cgrid[x][y] == 0 && neibors == 3 {
+				grid[x][y] = 1
 			}
 
 		}
 	}
-}
-
-func getneighbors(x, y int) int {
-	return grid[x][y+1] + grid[x][y-1] + grid[x-1][y] + grid[x+1][y] + grid[x-1][y-1] + grid[x-1][y+1] + grid[x+1][y-1] + grid[x+1][y-1]
 
 }
 
-// func checknegative(num int) int {
-// 	if num < 0 {
-// 		return 0
-// 	}
-// 	return num
-
-// }
+/// check if x,y is in Bound
+func inBound(grid [20][20]int, x, y int) int {
+	if x <= -1 || y <= -1 || x >= len(grid) || y >= len(grid[x]) {
+		return 0
+	}
+	return grid[x][y]
+}
 
 func display() {
 	time.Sleep(1 * time.Second)
@@ -126,20 +112,3 @@ func populate(life int) {
 	}
 
 }
-
-/*
-	grid[9][10] = 1 // up
-	grid[9][8] = 1  //down
-
-	// left & right
-	grid[8][9] = 1
-	grid[10][9] = 1
-
-	// sad
-	grid[8][10] = 1
-	grid[8][8] = 1
-
-	grid[10][10] = 1
-	grid[10][8] = 1
-	grid[10]
-*/
