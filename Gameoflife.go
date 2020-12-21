@@ -12,7 +12,7 @@ var gen = 0
 func main() {
 
 	s := flag.Int("S", 0, "set state (0-3)")
-	g := flag.Int("G", 50, "set generation")
+	g := flag.Int("G", 50, "set number of generation")
 	flag.Parse()
 
 	populate(*s)
